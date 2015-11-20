@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>hello phaser!</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/2.4.4/phaser.min.js"></script>
+    </head>
+    <body>
+
+    <script type="text/javascript">
+
+    window.onload = function() {
+
+        var game = new Phaser.Game(800, 600, Phaser.CANVAS, '', { preload: preload, create: create, render: render, update: update });
+        var bomb;
+        var tank;
+        var plane;
+        var explosion;
+        var rightKey;
+        var leftKey;
+        var spaceBar;
+        var velText;
+        
+        function preload () {
+            game.load.image('background', 'background.png');
+            game.load.image('tank', 'tank.png');
+            game.load.image('plane', 'plane.png');
+            game.load.image('bomb', 'bomb.png');
+            game.load.image('explosion', 'explosion.png');
+
+        }
+
+        function create () {
+             
+            //background image
+            game.add.tileSprite(0, 0, game.width, game.height, 'background');
+            
+            //add base sprites
+            tank = game.add.sprite(50, 510, 'tank');       
+            plane = game.add.sprite(-140, 25, 'plane');  
+            
+            //start arcade physics system
+            game.physics.startSystem(Phaser.Physics.ARCADE);
+            game.physics.arcade.gravity.y = 0;
+            game.physics.arcade.restitution = 0.8;
+            
+            //initialize physics
+            game.physics.arcade.enable(plane);
+            game.physics.arcade.enable(tank);
+            
+            //game world boundaries
+            game.world.setBounds(0, 0, 800, 570);
+            
+            //set initial velocity
+            plane.body.velocity.x = 174;
+            tank.body.velocity.x = 120;
+            
+            //create keybindings
+            spaceBar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+            rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+            leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+            
+            //in game text for velocity
+            velText = game.add.text(8, 8, 'Speed: 174', {font: "14px Arial", fill: "#ffffff"});
+            
+        }
+        
+        function render () {
+        }
+        
+        function update () {
+            //arrow keys change velocity
+            if (rightKey.isDown){
+                if (plane.body.velocity.x >= 300){
+                    plane.body.velocity.x = 300;          
+                }else{
+                    plane.body.velocity.x += 3;
+                    velText.text = 'Speed: ' + plane.body.velocity.x;
+                }
+            }else if (leftKey.isDown){
+                if (plane.body.velocity.x <= 150){
+                    plane.body.velocity.x = 150;
+                }else{
+                    plane.body.velocity.x -= 3; 
+                    velText.text = 'Speed: ' + plane.body.velocity.x;
+                }
+            }
+            
+            //wrap plane around boundaries -- offscreen
+            if (plane.x > 800){
+                plane.x = -140;
+            }
+            
+            //wrap tank around boundaries -- offscreen
+            if (tank.x > 800){
+                tank.x = -100;
+            }
+            
+            //spacebar launches bombs
+            spaceBar.onDown.add(launch, this);
+            //check contact between bomb and tank
+            game.physics.arcade.overlap(bomb, tank, hitTank, null, this);
+            
+            //if tank has been killed, make a new one
+            if (!tank.alive){
+                tank = game.add.sprite(-100, 510, 'tank');
+                game.physics.arcade.enable(tank);
+                tank.body.velocity.x = 120;          
+            }
+            
+        }
+        
+        function launch () {
+            //launch bomb
+            bomb = game.add.sprite(plane.x + 60, plane.y + 50, 'bomb');
+            game.world.bringToTop(plane);
+            game.physics.arcade.enable(bomb);
+            bomb.body.gravity.y = 175;
+            bomb.body.velocity.x = plane.body.velocity.x;
+            
+        }
+        
+        function hitTank (bomb, tank){
+        
+            tank.kill();
+            bomb.kill();
+            explosion = game.add.sprite(bomb.x, bomb.y, 'explosion');
+            game.time.events.add(Phaser.Timer.SECOND * 1, fadePicture, this);
+            
+        }
+        
+        function fadePicture () {
+            game.add.tween(explosion).to({alpha: 0}, 2000, Phaser.Easing.Linear.None, true);
+        }
+        
+    };
+
+    </script>
+
+    </body>
+</html>
