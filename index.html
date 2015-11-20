@@ -11,7 +11,7 @@
 
     window.onload = function() {
 
-        var game = new Phaser.Game(800, 600, Phaser.CANVAS, '', { preload: preload, create: create, render: render, update: update });
+        var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'hackweek-game', { preload: preload, create: create, render: render, update: update });
         var bomb;
         var tank;
         var plane;
@@ -22,11 +22,11 @@
         var velText;
         
         function preload () {
-            game.load.image('background', 'background.png');
-            game.load.image('tank', 'tank.png');
-            game.load.image('plane', 'plane.png');
-            game.load.image('bomb', 'bomb.png');
-            game.load.image('explosion', 'explosion.png');
+            game.load.image('background', 'images/background.png');
+            game.load.image('tank', 'images/tank.png');
+            game.load.image('plane', 'images/plane.png');
+            game.load.image('bomb', 'images/bomb.png');
+            game.load.image('explosion', 'images/explosion.png');
 
         }
 
@@ -136,6 +136,7 @@
     };
 
     </script>
-
+    <div id="hackweek-game"></div>
+    <img src="images/phaser.png" alt="Phaser Logo">
     </body>
 </html>
