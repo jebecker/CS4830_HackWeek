@@ -12,7 +12,8 @@
     window.onload = function() {
 
         var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'hackweek-game', { preload: preload, create: create, render: render, update: update });
-        var bomb;
+        
+		var bomb;
         var tank;
         var plane;
         var explosion;
@@ -20,6 +21,10 @@
         var leftKey;
         var spaceBar;
         var velText;
+		var bombCount = 20;
+		var countText;
+		var killCount = 0;
+		var killText;
         
         function preload () {
             game.load.image('background', 'images/background.png');
@@ -27,11 +32,9 @@
             game.load.image('plane', 'images/plane.png');
             game.load.image('bomb', 'images/bomb.png');
             game.load.image('explosion', 'images/explosion.png');
+		}
 
-        }
-
-        function create () {
-             
+        function create () {     
             //background image
             game.add.tileSprite(0, 0, game.width, game.height, 'background');
             
@@ -61,8 +64,9 @@
             leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
             
             //in game text for velocity
-            velText = game.add.text(8, 8, 'Speed: 174', {font: "14px Arial", fill: "#ffffff"});
-            
+            velText = game.add.text(8, 8, 'Speed: 174', {font: "14px Arial", fill: "#f8f8ff"});
+			countText = game.add.text(660, 8, 'Bombs remaining: 20', {font: "14px Arial", fill: "#f8f8ff"});
+			killText = game.add.text(375, 8, 'Kills: 0', {font: "14px Arial", fill: "#f8f8ff"});         
         }
         
         function render () {
@@ -106,33 +110,35 @@
                 tank = game.add.sprite(-100, 510, 'tank');
                 game.physics.arcade.enable(tank);
                 tank.body.velocity.x = 120;          
-            }
-            
+            }          
         }
         
         function launch () {
             //launch bomb
-            bomb = game.add.sprite(plane.x + 60, plane.y + 50, 'bomb');
-            game.world.bringToTop(plane);
-            game.physics.arcade.enable(bomb);
-            bomb.body.gravity.y = 175;
-            bomb.body.velocity.x = plane.body.velocity.x;
-            
+			if (bombCount > 0){
+				bomb = game.add.sprite(plane.x + 60, plane.y + 50, 'bomb');
+				game.world.bringToTop(plane);
+				game.physics.arcade.enable(bomb);
+				bomb.body.gravity.y = 175;
+				bomb.body.velocity.x = plane.body.velocity.x;
+				bombCount--;
+				countText.text = 'Bombs remaining: ' + bombCount;
+			}          
         }
         
         function hitTank (bomb, tank){
-        
             tank.kill();
+			killCount++;
             bomb.kill();
             explosion = game.add.sprite(bomb.x, bomb.y, 'explosion');
             game.time.events.add(Phaser.Timer.SECOND * 1, fadePicture, this);
-            
+			killText.text = 'Kills: ' + killCount;          
         }
         
         function fadePicture () {
             game.add.tween(explosion).to({alpha: 0}, 2000, Phaser.Easing.Linear.None, true);
         }
-        
+		
     };
 
     </script>
